@@ -1,0 +1,1062 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.dao.ShopDAO" >
+    <resultMap id="BaseResultMap" type="com.model.ShopDO" >
+        <id column="id" property="id" jdbcType="BIGINT" />
+        <result column="pid" property="pid" jdbcType="BIGINT" />
+        <result column="uid" property="uid" jdbcType="BIGINT" />
+        <result column="mid" property="mid" jdbcType="BIGINT" />
+        <result column="spot_code" property="spotCode" jdbcType="VARCHAR" />
+        <result column="lc_code" property="lcCode" jdbcType="VARCHAR" />
+        <result column="shop_name" property="shopName" jdbcType="VARCHAR" />
+        <result column="description" property="description" jdbcType="VARCHAR" />
+        <result column="address" property="address" jdbcType="VARCHAR" />
+        <result column="lng" property="lng" jdbcType="VARCHAR" />
+        <result column="lat" property="lat" jdbcType="VARCHAR" />
+        <result column="contact" property="contact" jdbcType="VARCHAR" />
+        <result column="contact_phone" property="contactPhone" jdbcType="VARCHAR" />
+        <result column="time_open" property="timeOpen" jdbcType="TIME" />
+        <result column="time_close" property="timeClose" jdbcType="TIME" />
+        <result column="shop_item" property="shopItem" jdbcType="VARCHAR" />
+        <result column="shop_volume" property="shopVolume" jdbcType="VARCHAR" />
+        <result column="shop_env" property="shopEnv" jdbcType="VARCHAR" />
+        <result column="logo" property="logo" jdbcType="VARCHAR" />
+        <result column="pic" property="pic" jdbcType="VARCHAR" />
+        <result column="remark" property="remark" jdbcType="VARCHAR" />
+        <result column="level" property="level" jdbcType="BIGINT" />
+        <result column="vip" property="vip" jdbcType="TINYINT" />
+        <result column="zone_code" property="zoneCode" jdbcType="TINYINT" />
+        <result column="assurance" property="assurance" jdbcType="BIGINT" />
+        <result column="attribute" property="attribute" jdbcType="BIGINT"/>
+        <result column="props" property="props" jdbcType="VARCHAR" />
+        <result column="retail_props" property="retailProps" jdbcType="VARCHAR" />
+        <result column="creator" property="creator" jdbcType="VARCHAR" />
+        <result column="owner_name" property="ownerName" jdbcType="VARCHAR" />
+        <result column="follow_num" property="followNum" jdbcType="BIGINT" />
+        <result column="status" property="status" jdbcType="TINYINT" />
+        <result column="type" property="type" jdbcType="TINYINT" />
+        <result column="rank" property="rank" jdbcType="INTEGER" />
+        <result column="cdate" property="cdate" jdbcType="TIMESTAMP" />
+        <result column="edate" property="edate" jdbcType="TIMESTAMP" />
+        <result column="open_code" property="openCode" jdbcType="VARCHAR" />
+        <result column="tpl" property="tpl" jdbcType="INTEGER" />
+        <result column="machine" property="machine" jdbcType="VARCHAR" />
+        <result column="fee_setting" property="feeSetting" jdbcType="VARCHAR" />
+    </resultMap>
+
+    <!--   <resultMap id="joinMaster" type="com.wbm.carriage.tp.item.api.model.ItemDO" > -->
+    <!--     <result column="partner_id" jdbcType="BIGINT" property="partnerId" /> -->
+    <!--     <result column="puser_id" jdbcType="BIGINT" property="puserId" /> -->
+    <!--     <result column="shop_id" jdbcType="BIGINT" property="shopId" /> -->
+    <!-- 	<result property="count" column="total"/> -->
+    <!--     关联到 tt_partner表 -->
+    <!--     <association property="partner" column="partner_name" javaType="com.wbm.carriage.basic.partner.api.model.PartnerDO" resultMap="joinSpotResult" />   -->
+    <!--   </resultMap> -->
+
+    <!-- 关联tt_partner表需要的列   -->
+    <!--   <resultMap type="com.wbm.carriage.basic.partner.api.model.PartnerDO" id="joinSpotResult">  -->
+    <!--     <result  column="partner_name" property="partnerName" />   -->
+    <!--   </resultMap>  -->
+
+    <sql id="Base_Column_List" >
+        id, pid, uid,mid, spot_code, lc_code, shop_name, `description`, address, lng, lat, contact, contact_phone,
+        time_open, time_close, shop_item, shop_volume, shop_env, logo, pic, remark, level, vip, zone_code,open_code,
+        attribute, assurance, props,retail_props, creator, owner_name, follow_num, status,type,rank, tpl,machine,fee_setting,cdate, edate
+    </sql>
+
+    <sql id="Base_Select_List" >
+        id, pid, uid, mid,spot_code, lc_code, shop_name, address, contact, contact_phone,
+        attribute,creator, owner_name,status,type,active,tpl,machine,fee_setting,zone_code
+    </sql>
+
+    <sql id="select_where_idnotin">
+        status !=-1
+        <if test="status != null" >
+            AND status = #{status,jdbcType=TINYINT}
+        </if>
+        <if test="shopName != null" >
+            AND shop_name like ('%' #{shopName,jdbcType=VARCHAR} '%')
+        </if>
+        <if test="address != null" >
+            AND address like ('%' #{address,jdbcType=VARCHAR} '%')
+        </if>
+        <if test="contact != null" >
+            AND contact like ('%' #{contact,jdbcType=VARCHAR} '%')
+        </if>
+        <if test="contactPhone != null" >
+            AND contact_phone like ('%' #{contactPhone,jdbcType=VARCHAR} '%')
+        </if>
+        <if test="type != null" >
+            AND type = #{type,jdbcType=TINYINT}
+        </if>
+        <if test="openCode != null" >
+            AND open_code = #{openCode,jdbcType=VARCHAR}
+        </if>
+        <if test="openCodeArray != null">
+            AND open_code in
+            <foreach item="item" index="index" open="(" close=")" separator="," collection="openCodeArray" >
+                #{item}
+            </foreach>
+        </if>
+        <if test="data != null">
+            AND id not in
+            <foreach item="id" index="index" open="(" close=")" separator="," collection="data" >
+                #{id}
+            </foreach>
+        </if>
+    </sql>
+
+    <sql id="select_where">
+        status !=-1
+        <if test="pid != null" >
+            AND pid = #{pid,jdbcType=BIGINT}
+        </if>
+        <if test="uid != null" >
+            AND uid = #{uid,jdbcType=BIGINT}
+        </if>
+        <if test="mid != null" >
+            AND mid = #{mid,jdbcType=BIGINT}
+        </if>
+        <if test="spotCode != null" >
+            AND spot_code like ('%' #{spotCode,jdbcType=VARCHAR} '%')
+        </if>
+        <if test="lcCode != null" >
+            AND lc_code = #{lcCode,jdbcType=VARCHAR}
+        </if>
+        <if test="shopName != null" >
+            AND shop_name like ('%' #{shopName,jdbcType=VARCHAR} '%')
+        </if>
+        <if test="address != null" >
+            AND address like ('%' #{address,jdbcType=VARCHAR} '%')
+        </if>
+        <if test="lng != null" >
+            AND lng = #{lng,jdbcType=VARCHAR}
+        </if>
+        <if test="lat != null" >
+            AND lat = #{lat,jdbcType=VARCHAR}
+        </if>
+        <if test="contact != null" >
+            AND contact like ('%' #{contact,jdbcType=VARCHAR} '%')
+        </if>
+        <if test="contactPhone != null" >
+            AND contact_phone like ('%' #{contactPhone,jdbcType=VARCHAR} '%')
+        </if>
+        <if test="shopItem != null" >
+            AND shop_item = #{shopItem,jdbcType=VARCHAR}
+        </if>
+        <if test="level != null" >
+            AND level = #{level,jdbcType=BIGINT}
+        </if>
+        <if test="vip != null" >
+            AND vip = #{vip,jdbcType=TINYINT}
+        </if>
+        <if test="zoneCode != null" >
+            AND zone_code = #{zoneCode,jdbcType=TINYINT}
+        </if>
+        <if test="attribute != null" >
+            AND <![CDATA[(attribute & #{attribute,jdbcType=BIGINT}) = #{attribute,jdbcType=BIGINT}]]>
+        </if>
+        <if test="assurance != null" >
+            AND <![CDATA[(assurance & #{assurance,jdbcType=BIGINT}) = #{assurance,jdbcType=BIGINT}]]>
+        </if>
+        <if test="creator != null" >
+            AND creator = #{creator,jdbcType=VARCHAR}
+        </if>
+        <if test="ownerName != null" >
+            AND owner_name = #{ownerName,jdbcType=VARCHAR}
+        </if>
+        <if test="status != null" >
+            AND status = #{status,jdbcType=TINYINT}
+        </if>
+        <if test="type != null" >
+            AND type = #{type,jdbcType=TINYINT}
+        </if>
+        <if test="openCode != null" >
+            AND open_code = #{openCode,jdbcType=VARCHAR}
+        </if>
+        <if test="types != null">
+            AND type in(#{types})
+        </if>
+        <if test="openCodes != null">
+            AND open_code in
+            <foreach item="openCode" index="index" open="(" close=")" separator="," collection="data" >
+                #{openCode}
+            </foreach>
+        </if>
+        <if test="uids != null">
+            AND uid in
+            <foreach item="uid" index="index" open="(" close=")" separator="," collection="uids" >
+                #{uid}
+            </foreach>
+        </if>
+        <if test="rank != null" >
+            AND rank = #{rank,jdbcType=INTEGER}
+        </if>
+        <if test="tpl != null" >
+            AND tpl = #{tpl,jdbcType=INTEGER}
+        </if>
+        <if test="startEdate != null" >
+            AND edate >= #{startEdate,jdbcType=TIMESTAMP}
+        </if>
+    </sql>
+
+    <sql id="select_provider_shop_where">
+        a.status !=-1 and b.status=1 and b.type=2
+        <if test="uid != null" >
+            AND b.user_id = #{uid,jdbcType=BIGINT}
+        </if>
+        <if test="isDefault != null" >
+            AND b.is_default = #{isDefault,jdbcType=TINYINT}
+        </if>
+        <if test="shopName != null" >
+            AND a.shop_name like ('%' #{shopName,jdbcType=VARCHAR} '%')
+        </if>
+        <if test="address != null" >
+            AND a.address like ('%' #{address,jdbcType=VARCHAR} '%')
+        </if>
+        <if test="contact != null" >
+            AND a.contact = #{contact,jdbcType=VARCHAR}
+        </if>
+        <if test="contactPhone != null" >
+            AND a.contact_phone = #{contactPhone,jdbcType=VARCHAR}
+        </if>
+        <if test="level != null" >
+            AND a.level = #{level,jdbcType=BIGINT}
+        </if>
+        <if test="vip != null" >
+            AND a.vip = #{vip,jdbcType=TINYINT}
+        </if>
+        <if test="zoneCode != null" >
+            AND a.zone_code = #{zoneCode,jdbcType=TINYINT}
+        </if>
+        <if test="attribute != null" >
+            AND <![CDATA[(a.attribute & #{attribute,jdbcType=BIGINT}) = #{attribute,jdbcType=BIGINT}]]>
+        </if>
+        <if test="assurance != null" >
+            AND <![CDATA[(a.assurance & #{assurance,jdbcType=BIGINT}) = #{assurance,jdbcType=BIGINT}]]>
+        </if>
+        <if test="creator != null" >
+            AND a.creator = #{creator,jdbcType=VARCHAR}
+        </if>
+        <if test="ownerName != null" >
+            AND a.owner_name = #{ownerName,jdbcType=VARCHAR}
+        </if>
+        <if test="status != null" >
+            AND a.status = #{status,jdbcType=TINYINT}
+        </if>
+        <if test="type != null" >
+            AND a.type = #{type,jdbcType=TINYINT}
+        </if>
+        <if test="openCode != null" >
+            AND a.open_code = #{openCode,jdbcType=VARCHAR}
+        </if>
+        <if test="types != null">
+            AND a.type in(#{types})
+        </if>
+        <if test="customVip != null" >
+            AND b.custom_vip = #{customVip,jdbcType=BIGINT}
+        </if>
+        <if test="openCodes != null">
+            AND a.open_code in
+            <foreach item="openCode" index="index" open="(" close=")" separator="," collection="data" >
+                #{openCode}
+            </foreach>
+        </if>
+        <if test="rank != null" >
+            AND a.rank = #{rank,jdbcType=INTEGER}
+        </if>
+        <if test="startEdate != null" >
+            AND a.edate >= #{startEdate,jdbcType=TIMESTAMP}
+        </if>
+    </sql>
+
+    <sql id="select_coords_where">
+        status !=-1
+        <if test="pid != null" >
+            AND pid = #{pid,jdbcType=BIGINT}
+        </if>
+        <if test="uid != null" >
+            AND uid = #{uid,jdbcType=BIGINT}
+        </if>
+        <if test="spotCode != null" >
+            AND spot_code like (#{spotCode,jdbcType=VARCHAR} '%')
+        </if>
+        <if test="lcCode != null" >
+            AND lc_code = #{lcCode,jdbcType=VARCHAR}
+        </if>
+        <if test="shopName != null" >
+            AND shop_name like ('%' #{shopName,jdbcType=VARCHAR} '%')
+        </if>
+        <if test="address != null" >
+            AND address = #{address,jdbcType=VARCHAR}
+        </if>
+        <if test="contact != null" >
+            AND contact = #{contact,jdbcType=VARCHAR}
+        </if>
+        <if test="contactPhone != null" >
+            AND contact_phone = #{contactPhone,jdbcType=VARCHAR}
+        </if>
+        <if test="shopItem != null" >
+            AND shop_item = #{shopItem,jdbcType=VARCHAR}
+        </if>
+        <if test="level != null" >
+            AND level = #{level,jdbcType=BIGINT}
+        </if>
+        <if test="vip != null" >
+            AND vip = #{vip,jdbcType=TINYINT}
+        </if>
+        <if test="zoneCode != null" >
+            AND zone_code = #{zoneCode,jdbcType=TINYINT}
+        </if>
+        <if test="attribute != null" >
+            AND <![CDATA[(attribute & #{attribute,jdbcType=BIGINT}) = #{attribute,jdbcType=BIGINT}]]>
+        </if>
+        <if test="app != null" >
+            AND <![CDATA[(assurance & 8192) = 8192 ]]>
+        </if>
+        <if test="assurance != null" >
+            AND <![CDATA[(assurance & #{assurance,jdbcType=BIGINT}) = #{assurance,jdbcType=BIGINT}]]>
+        </if>
+        <if test="creator != null" >
+            AND creator = #{creator,jdbcType=VARCHAR}
+        </if>
+        <if test="ownerName != null" >
+            AND owner_name = #{ownerName,jdbcType=VARCHAR}
+        </if>
+        <if test="status != null" >
+            AND status = #{status,jdbcType=TINYINT}
+        </if>
+        <if test="type != null" >
+            AND type = #{type,jdbcType=TINYINT}
+        </if>
+        <if test="rank != null" >
+            AND rank = #{rank,jdbcType=INTEGER}
+        </if>
+        <if test="openCode != null" >
+            AND open_code = #{openCode,jdbcType=VARCHAR}
+        </if>
+        <if test="openCodes != null">
+            AND open_code in
+            <foreach item="openCode" index="index" open="(" close=")" separator="," collection="data" >
+                #{openCode}
+            </foreach>
+        </if>
+        <if test="dLng != null and lng != null" >
+            AND <![CDATA[lng >= #{lng,jdbcType=VARCHAR} - #{dLng,jdbcType=VARCHAR}]]> AND <![CDATA[lng <= #{lng,jdbcType=VARCHAR} + #{dLng,jdbcType=VARCHAR}]]>
+        </if>
+        <if test="dLat != null and lat != null" >
+            AND <![CDATA[lat >= #{lat,jdbcType=VARCHAR} - #{dLat,jdbcType=VARCHAR}]]> AND <![CDATA[lat <= #{lat,jdbcType=VARCHAR} + #{dLat,jdbcType=VARCHAR}]]>
+        </if>
+        <if test="tpl != null" >
+            AND tpl = #{tpl,jdbcType=INTEGER}
+        </if>
+    </sql>
+
+    <sql id="Where_order_paging" >
+        <if test="orderBy != null" >
+            order by ${orderBy}
+        </if>
+        <if test="start != null and pageSize != null" >
+            limit #{start}, #{pageSize}
+        </if>
+        <if test="start == null and pageSize != null" >
+            limit #{pageSize}
+        </if>
+    </sql>
+
+    <select id="selectOneByShopName" resultMap="BaseResultMap" parameterType="java.lang.String">
+        select
+        <include refid="Base_Column_List"/>
+        from cp_shop where
+        shop_name like ('%' #{shopName,jdbcType=VARCHAR} '%') limit 1;
+    </select>
+
+    <select id="selectOneByShopNameAndOpenCode" resultMap="BaseResultMap" parameterType="com.search.ShopSearch">
+        select
+        <include refid="Base_Column_List"/>
+        from cp_shop where
+        <if test="openCode != null">
+            open_code = #{openCode,jdbcType=VARCHAR} AND
+        </if>
+        shop_name like ('%' #{shopName,jdbcType=VARCHAR} '%') limit 1;
+    </select>
+
+    <select id="selectOneById" resultMap="BaseResultMap" parameterType="java.lang.Long" >
+        select
+        <include refid="Base_Column_List" />
+        from cp_shop
+        where  status != -1 AND id = #{id,jdbcType=BIGINT}
+    </select>
+
+    <select id="selectOneBySpotCode" resultMap="BaseResultMap" parameterType="java.lang.String" >
+        select
+        <include refid="Base_Column_List" />
+        from cp_shop
+        where spot_code = #{spotCode,jdbcType=VARCHAR} limit 1;
+    </select>
+
+    <select id="selectOneByPid" resultMap="BaseResultMap" parameterType="java.lang.Long" >
+        select
+        <include refid="Base_Column_List" />
+        from cp_shop
+        where pid = #{pid} limit 1;
+    </select>
+
+    <select id="selectOneByUid" resultMap="BaseResultMap" parameterType="java.lang.Long" >
+        select
+        <include refid="Base_Column_List" />
+        from cp_shop
+        where uid = #{uid} limit 1;
+    </select>
+
+    <select id="selectOneBySin" resultMap="BaseResultMap" parameterType="java.lang.String" >
+        select
+        <include refid="Base_Column_List" />
+        from cp_shop
+        where sin = #{sin,jdbcType=VARCHAR} limit 1;
+    </select>
+
+    <select id="selectOne" resultMap="BaseResultMap" parameterType="com.search.ShopSearch" >
+        select
+        <include refid="Base_Column_List" />
+        from cp_shop where
+        <include refid="select_where"/>
+        limit 1;
+    </select>
+
+    <select id="selectListByIds" resultMap="BaseResultMap" parameterType="java.lang.String" >
+        select
+        <include refid="Base_Column_List" />
+        from cp_shop where status !=-1
+        AND id in
+        <foreach item="ids" index="index" open="(" close=")" separator="," collection="data" >
+            #{ids}
+        </foreach>
+    </select>
+    <select id="selectListByIdsCount" resultType="java.lang.Integer" parameterType="java.lang.String" >
+        select count(*)  from cp_shop where status !=-1
+        AND id in
+        <foreach item="ids" index="index" open="(" close=")" separator="," collection="data" >
+            #{ids}
+        </foreach>
+    </select>
+
+    <select id="selectListByPids" resultMap="BaseResultMap" parameterType="java.lang.String" >
+        select
+        <include refid="Base_Column_List" />
+        from cp_shop where status !=-1
+        AND pid in
+        <foreach item="pids" index="index" open="(" close=")" separator="," collection="data" >
+            #{pids}
+        </foreach>
+    </select>
+    <select id="selectListByPidsCount" resultType="java.lang.Integer" parameterType="java.lang.String" >
+        select count(*)  from cp_shop where status !=-1
+        AND pid in
+        <foreach item="pids" index="index" open="(" close=")" separator="," collection="data" >
+            #{pids}
+        </foreach>
+    </select>
+
+    <select id="selectListByUids" resultMap="BaseResultMap" parameterType="java.lang.String" >
+        select
+        <include refid="Base_Column_List" />
+        from cp_shop where status !=-1
+        AND uid in
+        <foreach item="uids" index="index" open="(" close=")" separator="," collection="data" >
+            #{uids}
+        </foreach>
+    </select>
+    <select id="selectListByUidsCount" resultType="java.lang.Integer" parameterType="java.lang.String" >
+        select count(*)  from cp_shop where status !=-1
+        AND uid in
+        <foreach item="uids" index="index" open="(" close=")" separator="," collection="data" >
+            #{uids}
+        </foreach>
+    </select>
+
+    <select id="selectListByTypes" resultMap="BaseResultMap" parameterType="java.lang.String" >
+        select
+        <include refid="Base_Column_List" />
+        from cp_shop where status !=-1
+        AND type in
+        <foreach item="types" index="index" open="(" close=")" separator="," collection="data" >
+            #{types}
+        </foreach>
+    </select>
+    <select id="selectListByTypesCount" resultType="java.lang.Integer" parameterType="java.lang.String" >
+        select count(*)  from cp_shop where status !=-1
+        AND type in
+        <foreach item="types" index="index" open="(" close=")" separator="," collection="data" >
+            #{types}
+        </foreach>
+    </select>
+
+    <select id="selectListByCoords" resultMap="BaseResultMap" parameterType="com.search.ShopSearch" >
+        select
+        <include refid="Base_Column_List" />
+        from (select *
+        <if test="lat != null and lng != null" >
+            <![CDATA[, round(2*6371393*asin(sqrt(power(sin(((#{lat} - lat)*pi()/180)/2), 2) + cos(#{lat}*pi()/180)*cos(lat*pi()/180)*power(sin((#{lng} - lng)*pi()/180/2), 2))), 0) as distance]]>
+        </if>
+        from cp_shop
+        where lng > 0 and lat > 0 and
+        <include refid="select_coords_where"/> ) AS a
+        <if test="lat != null and lng != null and distance != null" >
+            where <![CDATA[distance <= #{distance,jdbcType=BIGINT}]]>
+        </if>
+        <if test="lat != null and lng != null" >
+            order by distance
+        </if>
+
+        <if test="start != null and pageSize != null" >
+            limit #{start}, #{pageSize}
+        </if>
+        <if test="start == null and pageSize != null" >
+            limit #{pageSize}
+        </if>
+    </select>
+    <select id="selectListByCoordsCount" resultType="java.lang.Integer" parameterType="com.search.ShopSearch" >
+        select count(*)
+        from
+        (select id
+        <if test="lat != null and lng != null" >
+            <![CDATA[, round(2*6371393*asin(sqrt(power(sin(((#{lat} - lat)*pi()/180)/2), 2) + cos(#{lat}*pi()/180)*cos(lat*pi()/180)*power(sin((#{lng} - lng)*pi()/180/2), 2))), 0) as distance]]>
+        </if>
+        from cp_shop
+        where lng > 0 and lat > 0 and
+        <include refid="select_coords_where"/> ) AS a
+        <if test="lat != null and lng != null" >
+            where <![CDATA[distance <= #{distance,jdbcType=BIGINT}]]>
+        </if>
+    </select>
+
+    <select id="selectList" resultMap="BaseResultMap" parameterType="com.search.ShopSearch" >
+        select
+        <include refid="Base_Column_List" />
+        from cp_shop where
+        <include refid="select_where"/>
+        <include refid="Where_order_paging"/>
+    </select>
+
+    <select id="selectListCount" resultType="java.lang.Integer" parameterType="com.search.ShopSearch" >
+        select count(*)
+        from cp_shop where
+        <include refid="select_where"/>
+    </select>
+
+
+
+    <select id="selectListExcludeSomeId" resultMap="BaseResultMap" parameterType="com.search.ShopSearch" >
+        select
+        <include refid="Base_Column_List" />
+        from cp_shop where
+        <include refid="select_where_idnotin"/>
+        <include refid="Where_order_paging"/>
+    </select>
+
+    <select id="selectListExcludeSomeIdCount" resultType="java.lang.Integer" parameterType="com.search.ShopSearch" >
+        select count(*)
+        from cp_shop where
+        <include refid="select_where_idnotin"/>
+    </select>
+
+    <select id="selectProviderShopList" resultMap="BaseResultMap" parameterType="com.search.ShopSearch" >
+        select b.custom_vip as tpl,a.*,b.rank
+        from cp_shop as a JOIN tt_user_relation as b on a.uid=b.to_uid where
+        <include refid="select_provider_shop_where"/>
+        <include refid="Where_order_paging"/>
+    </select>
+    <select id="selectProviderShopListCount" resultType="java.lang.Integer" parameterType="com.search.ShopSearch" >
+        select count(*)
+        from cp_shop as a JOIN tt_user_relation as b on a.uid=b.to_uid where
+        <include refid="select_provider_shop_where"/>
+    </select>
+
+    <insert id="insert" parameterType="com.model.ShopDO" >
+        <selectKey resultType="Long"  order="AFTER" keyProperty="id" >
+            SELECT LAST_INSERT_ID() AS id
+        </selectKey>
+        insert into cp_shop
+        <trim prefix="(" suffix=")" suffixOverrides="," >
+            <if test="pid != null" >
+                pid,
+            </if>
+            <if test="uid != null" >
+                uid,
+            </if>
+            <if test="mid != null" >
+                mid,
+            </if>
+            <if test="spotCode != null" >
+                spot_code,
+            </if>
+            <if test="lcCode != null" >
+                lc_code,
+            </if>
+            <if test="shopName != null" >
+                shop_name,
+            </if>
+            <if test="description != null" >
+                description,
+            </if>
+            <if test="address != null" >
+                address,
+            </if>
+            <if test="lng != null" >
+                lng,
+            </if>
+            <if test="lat != null" >
+                lat,
+            </if>
+            <if test="contact != null" >
+                contact,
+            </if>
+            <if test="contactPhone != null" >
+                contact_phone,
+            </if>
+            <if test="timeOpen != null" >
+                time_open,
+            </if>
+            <if test="timeClose != null" >
+                time_close,
+            </if>
+            <if test="shopItem != null" >
+                shop_item,
+            </if>
+            <if test="shopVolume != null" >
+                shop_volume,
+            </if>
+            <if test="shopEnv != null" >
+                shop_env,
+            </if>
+            <if test="logo != null" >
+                logo,
+            </if>
+            <if test="remark != null" >
+                remark,
+            </if>
+            <if test="level != null" >
+                level,
+            </if>
+            <if test="vip != null" >
+                vip,
+            </if>
+            <if test="zoneCode != null" >
+                zone_code,
+            </if>
+            <if test="attribute != null" >
+                attribute,
+            </if>
+            <if test="assurance != null" >
+                assurance,
+            </if>
+            <if test="props != null" >
+                props,
+            </if>
+            <if test="retailProps != null" >
+                retail_props,
+            </if>
+            <if test="creator != null" >
+                creator,
+            </if>
+            <if test="ownerName != null" >
+                owner_name,
+            </if>
+            <if test="followNum != null" >
+                follow_num,
+            </if>
+            <if test="status != null" >
+                status,
+            </if>
+            <if test="type != null" >
+                type,
+            </if>
+            <if test="rank != null" >
+                rank,
+            </if>
+            <if test="cdate != null" >
+                cdate,
+            </if>
+            <if test="edate != null" >
+                edate,
+            </if>
+            <if test="pic != null" >
+                pic,
+            </if>
+            <if test="tag != null" >
+                tag,
+            </if>
+            <if test="promotionLogs != null" >
+                promotion_logs,
+            </if>
+            <if test="openCode != null" >
+                open_code,
+            </if>
+            <if test="tpl != null" >
+                tpl,
+            </if>
+            <if test="machine != null" >
+                machine,
+            </if>
+            <if test="feeSetting != null" >
+                fee_setting,
+            </if>
+
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides="," >
+            <if test="pid != null" >
+                #{pid,jdbcType=BIGINT},
+            </if>
+            <if test="uid != null" >
+                #{uid,jdbcType=BIGINT},
+            </if>
+            <if test="mid != null" >
+                #{mid,jdbcType=BIGINT},
+            </if>
+            <if test="spotCode != null" >
+                #{spotCode,jdbcType=VARCHAR},
+            </if>
+            <if test="lcCode != null" >
+                #{lcCode,jdbcType=VARCHAR},
+            </if>
+            <if test="shopName != null" >
+                #{shopName,jdbcType=VARCHAR},
+            </if>
+            <if test="description != null" >
+                #{description,jdbcType=VARCHAR},
+            </if>
+            <if test="address != null" >
+                #{address,jdbcType=VARCHAR},
+            </if>
+            <if test="lng != null" >
+                #{lng,jdbcType=VARCHAR},
+            </if>
+            <if test="lat != null" >
+                #{lat,jdbcType=VARCHAR},
+            </if>
+            <if test="contact != null" >
+                #{contact,jdbcType=VARCHAR},
+            </if>
+            <if test="contactPhone != null" >
+                #{contactPhone,jdbcType=VARCHAR},
+            </if>
+            <if test="timeOpen != null" >
+                #{timeOpen,jdbcType=TIME},
+            </if>
+            <if test="timeClose != null" >
+                #{timeClose,jdbcType=TIME},
+            </if>
+            <if test="shopItem != null" >
+                #{shopItem,jdbcType=VARCHAR},
+            </if>
+            <if test="shopVolume != null" >
+                #{shopVolume,jdbcType=VARCHAR},
+            </if>
+            <if test="shopEnv != null" >
+                #{shopEnv,jdbcType=VARCHAR},
+            </if>
+            <if test="logo != null" >
+                #{logo,jdbcType=VARCHAR},
+            </if>
+            <if test="remark != null" >
+                #{remark,jdbcType=VARCHAR},
+            </if>
+            <if test="level != null" >
+                #{level,jdbcType=BIGINT},
+            </if>
+            <if test="vip != null" >
+                #{vip,jdbcType=TINYINT},
+            </if>
+            <if test="zoneCode != null" >
+                #{zoneCode,jdbcType=TINYINT},
+            </if>
+            <if test="attribute != null" >
+                #{attribute,jdbcType=BIGINT},
+            </if>
+            <if test="assurance != null" >
+                #{assurance,jdbcType=BIGINT},
+            </if>
+            <if test="props != null" >
+                #{props,jdbcType=VARCHAR},
+            </if>
+            <if test="retailProps != null" >
+                #{retailProps,jdbcType=VARCHAR},
+            </if>
+            <if test="creator != null" >
+                #{creator,jdbcType=VARCHAR},
+            </if>
+            <if test="ownerName != null" >
+                #{ownerName,jdbcType=VARCHAR},
+            </if>
+            <if test="followNum != null" >
+                #{followNum,jdbcType=BIGINT},
+            </if>
+            <if test="status != null" >
+                #{status,jdbcType=TINYINT},
+            </if>
+            <if test="type != null" >
+                #{type,jdbcType=TINYINT},
+            </if>
+            <if test="rank != null" >
+                #{rank,jdbcType=INT},
+            </if>
+            <if test="cdate != null" >
+                #{cdate,jdbcType=TIMESTAMP},
+            </if>
+            <if test="edate != null" >
+                #{edate,jdbcType=TIMESTAMP},
+            </if>
+            <if test="pic != null" >
+                #{pic,jdbcType=LONGVARCHAR},
+            </if>
+            <if test="tag != null" >
+                #{tag,jdbcType=LONGVARCHAR},
+            </if>
+            <if test="promotionLogs != null" >
+                #{promotionLogs,jdbcType=LONGVARCHAR},
+            </if>
+            <if test="openCode != null" >
+                #{openCode,jdbcType=VARCHAR},
+            </if>
+            <if test="tpl != null" >
+                #{tpl,jdbcType=INTEGER},
+            </if>
+            <if test="machine != null" >
+                #{machine,jdbcType=VARCHAR},
+            </if>
+            <if test="feeSetting != null" >
+                #{feeSetting,jdbcType=VARCHAR},
+            </if>
+        </trim>
+    </insert>
+
+    <update id="update" parameterType="com.model.ShopDO" >
+        update cp_shop
+        <trim prefix="set " suffixOverrides="," >
+            <if test="pid != null" >
+                pid = #{pid,jdbcType=BIGINT},
+            </if>
+            <if test="uid != null" >
+                uid = #{uid,jdbcType=BIGINT},
+            </if>
+            <if test="mid != null" >
+                mid = #{mid,jdbcType=BIGINT},
+            </if>
+            <if test="spotCode != null" >
+                spot_code = #{spotCode,jdbcType=VARCHAR},
+            </if>
+            <if test="lcCode != null" >
+                lc_code = #{lcCode,jdbcType=VARCHAR},
+            </if>
+            <if test="shopName != null" >
+                shop_name = #{shopName,jdbcType=VARCHAR},
+            </if>
+            <if test="description != null" >
+                description = #{description,jdbcType=VARCHAR},
+            </if>
+            <if test="address != null" >
+                address = #{address,jdbcType=VARCHAR},
+            </if>
+            <if test="lng != null" >
+                lng = #{lng,jdbcType=VARCHAR},
+            </if>
+            <if test="lat != null" >
+                lat = #{lat,jdbcType=VARCHAR},
+            </if>
+            <if test="contact != null" >
+                contact = #{contact,jdbcType=VARCHAR},
+            </if>
+            <if test="contactPhone != null" >
+                contact_phone = #{contactPhone,jdbcType=VARCHAR},
+            </if>
+            <if test="timeOpen != null" >
+                time_open = #{timeOpen,jdbcType=TIME},
+            </if>
+            <if test="timeClose != null" >
+                time_close = #{timeClose,jdbcType=TIME},
+            </if>
+            <if test="shopItem != null" >
+                shop_item = #{shopItem,jdbcType=VARCHAR},
+            </if>
+            <if test="shopVolume != null" >
+                shop_volume = #{shopVolume,jdbcType=VARCHAR},
+            </if>
+            <if test="shopEnv != null" >
+                shop_env = #{shopEnv,jdbcType=VARCHAR},
+            </if>
+            <if test="logo != null" >
+                logo = #{logo,jdbcType=VARCHAR},
+            </if>
+            <if test="remark != null" >
+                remark = #{remark,jdbcType=VARCHAR},
+            </if>
+            <if test="level != null" >
+                level = #{level,jdbcType=BIGINT},
+            </if>
+            <if test="vip != null" >
+                vip = #{vip,jdbcType=TINYINT},
+            </if>
+            <if test="zoneCode != null" >
+                zone_code = #{zoneCode,jdbcType=TINYINT},
+            </if>
+            <if test="attribute != null" >
+                attribute = #{attribute,jdbcType=BIGINT},
+            </if>
+            <if test="assurance != null" >
+                assurance = #{assurance,jdbcType=BIGINT},
+            </if>
+            <if test="props != null" >
+                props = #{props,jdbcType=VARCHAR},
+            </if>
+            <if test="retailProps != null" >
+                retail_props = #{retailProps,jdbcType=VARCHAR},
+            </if>
+            <if test="creator != null" >
+                creator = #{creator,jdbcType=VARCHAR},
+            </if>
+            <if test="ownerName != null" >
+                owner_name = #{ownerName,jdbcType=VARCHAR},
+            </if>
+            <if test="followNum != null" >
+                follow_num = #{followNum,jdbcType=BIGINT},
+            </if>
+            <if test="status != null" >
+                status = #{status,jdbcType=TINYINT},
+            </if>
+            <if test="type != null" >
+                type = #{type,jdbcType=TINYINT},
+            </if>
+            <if test="rank != null" >
+                rank = #{rank,jdbcType=INTEGER},
+            </if>
+            <if test="cdate != null" >
+                cdate = #{cdate,jdbcType=TIMESTAMP},
+            </if>
+            <if test="edate != null" >
+                edate = #{edate,jdbcType=TIMESTAMP},
+            </if>
+            <if test="pic != null" >
+                pic = #{pic,jdbcType=LONGVARCHAR},
+            </if>
+            <if test="tag != null" >
+                tag = #{tag,jdbcType=LONGVARCHAR},
+            </if>
+            <if test="promotionLogs != null" >
+                promotion_logs = #{promotionLogs,jdbcType=LONGVARCHAR},
+            </if>
+            <if test="openCode != null" >
+                open_code = #{openCode,jdbcType=VARCHAR},
+            </if>
+            <if test="tpl != null" >
+                tpl = #{tpl,jdbcType=INTEGER},
+            </if>
+            <if test="machine != null" >
+                machine = #{machine,jdbcType=VARCHAR},
+            </if>
+            <if test="feeSetting != null" >
+                fee_setting =  #{feeSetting,jdbcType=VARCHAR},
+            </if>
+        </trim>
+        where id = #{id,jdbcType=BIGINT};
+    </update>
+
+    <update id="updateStatus" parameterType="com.model.ShopDO" >
+        update cp_shop  set status = #{status}
+        where id = #{id,jdbcType=VARCHAR}
+    </update>
+
+
+
+    <update id="updateByUid" parameterType="com.model.ShopDO" >
+        update cp_shop
+        <trim prefix="set " suffixOverrides="," >
+            <if test="mid != null" >
+                mid = #{mid,jdbcType=BIGINT},
+            </if>
+            <if test="level != null" >
+                level = #{level,jdbcType=BIGINT},
+            </if>
+            <if test="vip != null" >
+                vip = #{vip,jdbcType=TINYINT},
+            </if>
+        </trim>
+        where uid = #{uid}
+    </update>
+
+    <!-- 小店等级的统计汇总  -->
+    <select id="selectDaliyShopList" resultMap="BaseResultMap">
+        SELECT user_id as uid FROM cp_trade_master WHERE
+        <![CDATA[DATEDIFF(now(), cdate) < 90]]>
+        AND status in  (1,2,5,4,7,6)
+        AND biz_type = 20
+        GROUP BY user_id
+    </select>
+    <!--     select FLOOR(if(sum(pay_real/100)>999,sum(pay_real/100)/100,0)) as level
+      from cp_trade_master where
+      <![CDATA[DATEDIFF(now(),cdate) <90 ]]>
+      AND user_id = #{uid,jdbcType=BIGINT}
+      AND pay_status>0 AND status in (2,5,7)
+      group by tid -->
+    <select id="selectShopLevel" resultMap="BaseResultMap" parameterType="java.lang.Long" >
+        select FLOOR(if(sum(pay_real/100)>999,sum(pay_real/100)/100,0)) as level
+        from cp_trade_order where
+        user_id = #{uid,jdbcType=BIGINT}
+        AND status !=0 and status!=9 and status!=-1 and <![CDATA[DATEDIFF(now(),cdate) <90 ]]>
+        group by parent_id;
+    </select>
+
+
+    <select id="selectForNullAvatar" resultMap="BaseResultMap" parameterType="java.util.Map" >
+        select
+        <include refid="Base_Select_List" />
+        from cp_shop
+        where (attribute &amp; 16777216) = 16777216
+        <include refid="Where_order_paging"/>
+    </select>
+
+
+
+    <select id="selectForNullAvatarCount" resultType="java.lang.Long">
+        select
+        count(1)
+        from cp_shop
+        where (attribute &amp; 16777216) = 16777216
+    </select>
+
+    <update id="flagForNullAvatar" parameterType="map" >
+        update cp_shop
+        set attribute = (attribute | 16777216)
+        where status != -1 and (pic = '' or pic is null)
+    </update>
+
+    <update id="unflagForNullAvatar" parameterType="map" >
+        update cp_shop
+        set attribute = attribute - (attribute &amp; 16777216)
+        where (attribute &amp; 16777216) = 16777216
+    </update>
+    <select id="selectListByOpenCode" resultMap="BaseResultMap"  >
+        select
+        <include refid="Base_Select_List" />
+        from cp_shop
+        where status !=-1 and open_code = #{openCode,jdbcType=VARCHAR}
+    </select>
+
+    <select id="select500miPlusOrHuiyuanList" resultMap="BaseResultMap"  >
+        select
+        <include refid="Base_Select_List" />
+        from cp_shop
+        where status !=-1
+        and ((attribute &amp; 32768) = 32768 or (attribute &amp; 131072) = 131072)
+    </select>
+
+
+    <select id="select500miDeliveryList" resultMap="BaseResultMap"  >
+        select
+        <include refid="Base_Select_List" />
+        from cp_shop
+        where status !=-1
+        and ((assurance &amp; 512) = 512)
+    </select>
+
+</mapper>
